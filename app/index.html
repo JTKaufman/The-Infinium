@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Welcome Aboard The Infinium!
+		</title>
+	</head>
+	<body>
+		<center>
+		Welcome Aboard The Infinium!
+		<br>
+		<p>
+			Light Side Force Points: 
+		</p>
+		<p id="lightSidePoints">0</p>
+		<br>
+		<p>
+			Dark Side Force Points: 
+		</p>
+		<p id="darkSidePoints">0</p>
+			<!-- 8 sided die -->
+			<label for="player_ability">
+				Choose the player's (or npc's) ability level in the given attribute:
+			</label>
+			<select name="player_ability" id="player_ability">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+			</select>
+			<br>
+			<!-- 12 sided die -->
+			<label for="player_proficiency">
+				Choose the player's (or npc's) proficiency level in the given skill:
+			</label>
+			<select name="player_proficiency" id="player_proficiency">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+			</select>
+			<br>
+			<!-- 8 sided die/12 sided die -->
+			<label for="difficulty">
+				Choose the level of difficulty of the given task:
+			</label>
+			<select name="difficulty" id="difficulty">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+			</select>
+			<br>
+			<!-- 12 sided die -->
+			<label for="threat">
+				Choose the level of difficulty of the given task:
+			</label>
+			<select name="threat" id="threat">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+			</select>
+			<br>
+			<!-- 6 sided die -->
+			<label for="boost">
+				Select the number of Boost dice to add:
+			</label>
+			<select name="boost" id="boost">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+			</select>
+			<br>
+			<!-- 6 sided die -->
+			<label for="setBack">
+				Select the number of Setback dice to add:
+			</label>
+			<select name="setBack" id="setBack">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+			</select>
+			<br>
+			<button onclick="diceRoll()">
+				Roll
+			</button>
+			<br>
+		<p id="diceRollResults"></p>
+		<button onclick="forceRoll()">
+			Force Points Roll
+		</button>
+		<!-- 12 sided  force die -->
+		<p id="forcePoints">0</p>
+		<img src="theinfiniumcolor.jpg">
+		<img src="theinfiniumgrid.jpg">
+		<script>
+			var successFailure = 0;
+			var advantageDisadvantage = 0;
+			var triumphDespair = 0;
+
+			function diceRoll()
+			{
+				clearResults();
+
+				successFailure, advantageDisadvantage, triumphDespair = 0;
+
+				proficiencyRollAmount = parseInt(getSelectedValue("player_proficiency"));
+				abilityRollAmount = parseInt(getSelectedValue("player_ability")) - proficiencyRollAmount;
+				threatRollAmount = parseInt(getSelectedValue("threat"));
+				difficultyRollAmount = parseInt(getSelectedValue("difficulty")) - threatRollAmount;
+				boostRollAmount = parseInt(getSelectedValue("boost"));
+				setBackRollAmount = parseInt(getSelectedValue("setBack"));
+
+				for (var i = 0; i <= proficiencyRollAmount; i++)
+				{
+					proficiencyRoll()
+				}
+
+				if (abilityRollAmount > 0)
+				{
+					for (var i = 0; i <= abilityRollAmount; i++)
+					{
+						abilityRoll()
+					}
+				}
+
+				for (var i = 0; i <= threatRollAmount; i++)
+				{
+					threatRoll()
+				}
+
+				if (difficultyRollAmount > 0)
+				{
+					for (var i = 0; i <= difficultyRollAmount; i++)
+					{
+						difficultyRoll()
+					}
+				}
+
+				for (var i = 0; i <= boostRollAmount; i++)
+				{
+					document.getElementById("lightSidePoints").innerHTML = parseInt(document.getElementById("lightSidePoints").innerHTML) - 1;
+
+					document.getElementById("darkSidePoints").innerHTML = parseInt(document.getElementById("darkSidePoints").innerHTML) + 1;
+
+					boostRoll()
+				}
+	
+				for (var i = 0; i <= setBackRollAmount; i++)
+				{
+					document.getElementById("lightSidePoints").innerHTML = parseInt(document.getElementById("lightSidePoints").innerHTML) + 1;
+
+					document.getElementById("darkSidePoints").innerHTML = parseInt(document.getElementById("darkSidePoints").innerHTML) - 1;
+
+					setBackRoll();
+				}
+
+
+				printResults();
+			}
+
+			function getSelectedValue(e)
+			{
+				var e = document.getElementById(e);
+				var result = e.options[e.selectedIndex].value;
+				return(result);
+			}
+
+			function printResults() {
+				var rollResults = "";
+
+				if (successFailure > 0)
+				{
+					rollResults = successFailure + " Success ";
+				} else {
+					rollResults = Math.abs(successFailure) + " Failure ";
+				}
+
+				if (advantageDisadvantage > 0)
+				{
+					rollResults += advantageDisadvantage + " Advantage ";
+				} else {
+					rollResults += Math.abs(advantageDisadvantage) + " Disadvantage ";
+				}
+
+				if (triumphDespair > 0)
+				{
+					rollResults += triumphDespair + " Triumph";
+				} else {
+					rollResults += Math.abs(triumphDespair) + " Despair";
+				}
+
+				document.getElementById("diceRollResults").innerHTML = rollResults;
+			}
+
+			function clearResults() {
+				document.getElementById("diceRollResults").innerHTML = "";
+				successFailure = 0;
+				advantageDisadvantage = 0;
+				triumphDespair = 0;
+			}
+
+			function abilityRoll() 
+			{
+				abilityDieRoll = Math.floor(Math.random() * 8) + 1;
+
+				if (abilityDieRoll > 1 && abilityDieRoll < 4)
+				{
+					successFailure++;
+				}
+				else if (abilityDieRoll > 3 &&  abilityDieRoll < 6)
+				{
+					advantageDisadvantage++;
+				}
+				else if (abilityDieRoll == 6)
+				{
+					successFailure++;
+					advantageDisadvantage++;
+				}
+				else if (abilityDieRoll == 7)
+				{
+					advantageDisadvantage += 2;
+				}
+				else if (abilityDieRoll == 8)
+				{
+					successFailure += 2;
+				}
+			}
+
+			function proficiencyRoll() 
+			{
+				proficiencyDieRoll = Math.floor(Math.random() * 12) + 1;
+
+				if (proficiencyDieRoll == 2)
+				{
+					triumphDespair++;
+				}
+				else if (proficiencyDieRoll > 2 && proficiencyDieRoll < 5)
+				{
+					successFailure++;
+				}
+				else if (proficiencyDieRoll == 5) 
+				{
+					advantageDisadvantage++;
+				}
+				else if (proficiencyDieRoll > 5 && proficiencyDieRoll < 9)
+				{
+					successFailure++;
+					advantageDisadvantage++;
+				}
+				else if (proficiencyDieRoll > 8 && proficiencyDieRoll < 11)
+				{
+					successFailure += 2;
+				}
+				else if (proficiencyDieRoll > 10)
+				{
+					advantageDisadvantage += 2;
+				}
+			}
+
+			function difficultyRoll() 
+			{
+				difficultyDieRoll = Math.floor(Math.random() * 8) + 1;
+
+				if (difficultyDieRoll == 2)
+				{
+					successFailure--;
+				}
+				else if (difficultyDieRoll > 2 &&  difficultyDieRoll < 6)
+				{
+					advantageDisadvantage--;
+				}
+				else if (abilityDieRoll == 6)
+				{
+					successFailure -= 2;
+				}
+				else if (abilityDieRoll == 7)
+				{
+					successFailure--;
+					advantageDisadvantage--;
+				}
+				else if (abilityDieRoll == 8)
+				{
+					advantageDisadvantage -= 2;
+				}
+			}
+
+			function threatRoll()
+			{
+				threatDieRoll = Math.floor(Math.random() * 12) + 1;
+
+				if (threatDieRoll == 2)
+				{
+					triumphDespair--;
+				}
+				else if (threatDieRoll > 2 && threatDieRoll < 5)
+				{
+					successFailure--;
+				}
+				else if (threatDieRoll > 4 && threatDieRoll < 7)
+				{
+					advantageDisadvantage--;
+				}
+				else if (threatDieRoll > 6 && threatDieRoll < 9)
+				{
+					successFailure -= 2;
+				}
+				else if (threatDieRoll > 8 && threatDieRoll < 11)
+				{
+					advantageDisadvantage -= 2;
+				}
+				else if (threatDieRoll > 10)
+				{
+					successFailure--;
+					advantageDisadvantage--;
+				}
+			}
+
+			function boostRoll()
+			{
+				boostDieRoll = Math.floor(Math.random() * 6) + 1;
+
+				switch (boostDieRoll) 
+				{
+					case 3:
+						successFailure++;
+						break;
+					case 4:
+						advantageDisadvantage++;
+						break;
+					case 5:
+						advantageDisadvantage += 2;
+						break;
+					case 6:
+						advantageDisadvantage++;
+						successFailure++;
+						break;
+					default:
+						break;
+				}
+			}
+
+			function setBackRoll()
+			{
+				setBackDieRoll = Math.floor(Math.random() * 6) + 1;
+
+				switch (setBackDieRoll)
+				{
+					case 3:
+						successFailure--;
+						break;
+					case 4:
+						successFailure--;
+						break;
+					case 5:
+						advantageDisadvantage--;
+						break;
+					case 6:
+						advantageDisadvantage--;
+						break;
+					default:
+						break;
+				}
+			}
+
+			function forceRoll()
+			{
+				forceDieRoll = Math.floor(Math.random() * 12) + 1;
+
+				if (forceDieRoll < 3) 
+				{
+					document.getElementById("forcePoints").innerHTML = "1 Light Side Point";
+
+					document.getElementById("lightSidePoints").innerHTML = parseInt(document.getElementById("lightSidePoints").innerHTML) + 1;
+				} 
+				else if (forceDieRoll > 2 && forceDieRoll < 6) 
+				{
+					document.getElementById("forcePoints").innerHTML = "2 Light Side Points";
+
+					document.getElementById("lightSidePoints").innerHTML = parseInt(document.getElementById("lightSidePoints").innerHTML) + 2;
+				}
+				else if (forceDieRoll > 5 && forceDieRoll < 12)
+				{
+					document.getElementById("forcePoints").innerHTML = "1 Dark Side Point";
+
+					document.getElementById("darkSidePoints").innerHTML = parseInt(document.getElementById("darkSidePoints").innerHTML) + 1;
+				} else {
+					document.getElementById("forcePoints").innerHTML = "2 Dark Side Points";
+
+					document.getElementById("darkSidePoints").innerHTML = parseInt(document.getElementById("darkSidePoints").innerHTML) + 2;
+				}
+
+			}
+		</script>
+		</center>
+	</body>
+</html>
